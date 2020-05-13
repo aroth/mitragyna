@@ -2,15 +2,13 @@ export class Resource extends React.Component {
   static propTypes = {
     afterError: PropTypes.func,
     afterUpdate: PropTypes.func,
-    children: PropTypes.oneOfType([
-      PropTypes.array,
-      PropTypes.node,
-    ]),
+    children: PropTypes.oneOfType([PropTypes.array, PropTypes.node]),
     className: PropTypes.string,
     component: PropTypes.func,
     componentProps: PropTypes.object,
     onInvalidSubmit: PropTypes.func,
     onSubmit: PropTypes.func,
+    parent: PropTypes.object,
     reflection: PropTypes.string,
     subject: PropTypes.object.isRequired,
   };
@@ -47,26 +45,27 @@ export class Resource extends React.Component {
   constructor(props, context) {
     super();
 
-    _.bindAll(this,
-      'afterUpdate',
-      'assignChanges',
-      'queueReflectionChange',
-      'shiftReflectionQueue',
-      'queueChange',
-      'handleSubmit',
-      'updateRoot'
+    _.bindAll(
+      this,
+      "afterUpdate",
+      "assignChanges",
+      "queueReflectionChange",
+      "shiftReflectionQueue",
+      "queueChange",
+      "handleSubmit",
+      "updateRoot"
     );
 
-    const { root } = context;
-    const { reflection, subject } = props;
+    const root = context.root;
+    const { parent, reflection, subject } = props;
 
     let state = { resource: subject };
 
-    if(reflection) {
-      var reflectionInstance = root.klass().reflectOnAssociation(reflection);
-      if(_.isUndefined(reflectionInstance)) throw 'Reflection ' + reflection + ' not found.';
+    if (reflection) {
+      var reflectionInstance = (root || parent).klass().reflectOnAssociation(reflection);
+      if (_.isUndefined(reflectionInstance)) throw "Reflection " + reflection + " not found.";
       var inverseReflection = reflectionInstance.inverseOf();
-      if(_.isUndefined(inverseReflection)) throw 'Reflection ' + reflection + ' must have inverse.';
+      if (_.isUndefined(inverseReflection)) throw "Reflection " + reflection + " must have inverse.";
 
       state = {
         ...state,
@@ -78,8 +77,8 @@ export class Resource extends React.Component {
     } else {
       state = {
         ...state,
-        queuedReflectionChanges: []
-      }
+        queuedReflectionChanges: [],
+      };
     }
 
     this.beforeSubmit = props.beforeSubmit;
@@ -93,11 +92,11 @@ export class Resource extends React.Component {
 
     this.setState({ resource: nextProps.subject });
 
-    if(afterUpdate && !inverseReflection) {
+    if (afterUpdate && !inverseReflection) {
       this.setState({ updating: false });
       this.assignChanges();
     } else {
-      if(afterUpdateRoot && inverseReflection && queuedReflectionChanges[0] === this) {
+      if (afterUpdateRoot && inverseReflection && queuedReflectionChanges[0] === this) {
         shiftReflectionQueue();
         this.assignChanges();
       }
@@ -105,18 +104,18 @@ export class Resource extends React.Component {
   }
 
   componentDidCatch(error) {
-    return <p>{ error }</p>;
+    return <p>{error}</p>;
   }
 
   afterUpdate(newResource) {
     const { updateRoot } = this.context;
     const { inverseReflection, resource } = this.state;
 
-    if(inverseReflection) {
+    if (inverseReflection) {
       var oldTarget = resource.association(inverseReflection.name).target;
       var newTarget = newResource.association(inverseReflection.name).target;
 
-      if(inverseReflection.collection()) {
+      if (inverseReflection.collection()) {
         // FIXME: Allow autosave inverseOf collection to appropriately handle multiple resources in the collection,
         //   not just the first. If changing multiple fields of resource quickly, root may not be found in oldTarget
         //   because it has already been replaced by a previous change
@@ -134,7 +133,7 @@ export class Resource extends React.Component {
   assignChanges() {
     const { queuedChanges, resource } = this.state;
 
-    if(_.keys(queuedChanges).length == 0) return;
+    if (_.keys(queuedChanges).length == 0) return;
 
     var newResource = resource.assignAttributes(queuedChanges);
 
@@ -147,28 +146,31 @@ export class Resource extends React.Component {
     const { afterUpdate } = this.props;
     const { inverseReflection, queuedChanges, updating } = this.state;
 
-    this.setState({
-      queuedChanges: {
-        ...queuedChanges,
-        ...change
-      }
-    }, () => {
-      const { afterUpdateRoot, queueReflectionChange, updatingRoot } = this.context;
+    this.setState(
+      {
+        queuedChanges: {
+          ...queuedChanges,
+          ...change,
+        },
+      },
+      () => {
+        const { afterUpdateRoot, queueReflectionChange, updatingRoot } = this.context;
 
-      if(afterUpdate || afterUpdateRoot) {
-        if(inverseReflection) {
-          if(updatingRoot) {
-            queueReflectionChange(this);
+        if (afterUpdate || afterUpdateRoot) {
+          if (inverseReflection) {
+            if (updatingRoot) {
+              queueReflectionChange(this);
+            } else {
+              this.assignChanges();
+            }
           } else {
-            this.assignChanges();
+            if (!updating) this.assignChanges();
           }
         } else {
-          if(!updating) this.assignChanges();
+          this.assignChanges();
         }
-      } else {
-        this.assignChanges();
       }
-    });
+    );
   }
 
   queueReflectionChange(resource) {
@@ -186,7 +188,7 @@ export class Resource extends React.Component {
   }
 
   getChildContext() {
-    const { afterUpdate } = this.props;
+    const { afterUpdate, parent } = this.props;
     const { root } = this.context;
     const { resource, queuedReflectionChanges, updating } = this.state;
 
@@ -197,7 +199,7 @@ export class Resource extends React.Component {
       queuedReflectionChanges: queuedReflectionChanges,
       queueReflectionChange: this.queueReflectionChange,
       shiftReflectionQueue: this.shiftReflectionQueue,
-      root: root || resource,
+      root: parent || root || resource,
       resource,
       updateRoot: this.updateRoot,
       updatingRoot: updating,
@@ -207,41 +209,43 @@ export class Resource extends React.Component {
   }
 
   handleSubmit(e, callback) {
-    if(e) e.preventDefault();
+    if (e) e.preventDefault();
 
     const { onSubmit, onInvalidSubmit } = this.props;
     const { resource } = this.state;
 
     var onSubmitCallback = (resourceToSubmit) => {
-      if(!_.isUndefined(onSubmit)) {
+      if (!_.isUndefined(onSubmit)) {
         onSubmit(resourceToSubmit);
       }
 
-      if(!_.isUndefined(callback)) {
+      if (!_.isUndefined(callback)) {
         callback(resourceToSubmit);
       }
     };
 
     var onInvalidSubmitCallback = (invalidResource) => {
-      if(!_.isUndefined(onInvalidSubmit)) {
+      if (!_.isUndefined(onInvalidSubmit)) {
         onInvalidSubmit(invalidResource);
       }
 
-      if(!_.isUndefined(callback)) {
+      if (!_.isUndefined(callback)) {
         callback(invalidResource);
       }
     };
 
     let beforeSubmit = this.beforeSubmit || (this.componentRef && this.componentRef.beforeSubmit);
-    if(!_.isUndefined(beforeSubmit)) {
+    if (!_.isUndefined(beforeSubmit)) {
       new Promise((resolve, reject) => {
         try {
           var result = beforeSubmit(resource);
           resolve(result);
-        } catch(invalid) {
+        } catch (invalid) {
           reject(invalid);
         }
-      }).then(onSubmitCallback).catch(onInvalidSubmitCallback)
+      })
+        .then(onSubmitCallback)
+        .catch(onInvalidSubmitCallback);
     } else {
       onSubmitCallback(resource);
     }
@@ -253,27 +257,30 @@ export class Resource extends React.Component {
     const { resource } = this.state;
 
     let body;
-    if(component) {
+    if (component) {
       body = React.createElement(component, {
         ...componentProps,
         afterUpdate: this.afterUpdate,
         afterError,
         onSubmit: this.handleSubmit,
         subject: resource,
-        ref: (c) => { this.componentRef = c; componentRef(c) }
+        ref: (c) => {
+          this.componentRef = c;
+          componentRef(c);
+        },
       });
     } else {
       body = children;
     }
 
-    if(isNestedResource) {
-      return (
-        <section className={ className }>
-          { body }
-        </section>
-      );
+    if (isNestedResource) {
+      return <section className={className}>{body}</section>;
     } else {
-      return <form className={className} onSubmit={ this.handleSubmit }>{ body }</form>;
+      return (
+        <form className={className} onSubmit={this.handleSubmit}>
+          {body}
+        </form>
+      );
     }
   }
 
@@ -283,9 +290,9 @@ export class Resource extends React.Component {
 
     this.setState({ resource: newRoot });
 
-    if(afterUpdate) {
+    if (afterUpdate) {
       afterUpdate(newRoot, resource);
-      this.setState({ updating: true })
+      this.setState({ updating: true });
     }
   }
 }

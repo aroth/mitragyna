@@ -686,9 +686,9 @@
     options: _propTypes2.default.instanceOf(_activeResource2.default.Collection),
     optionsLabel: _propTypes2.default.oneOfType([_propTypes2.default.string, _propTypes2.default.func]),
     type: _propTypes2.default.string.isRequired,
-    uncheckedValue: _propTypes2.default.oneOfType([_propTypes2.default.object, _propTypes2.default.func, _propTypes2.default.string, _propTypes2.default.number]),
+    uncheckedValue: _propTypes2.default.oneOfType([_propTypes2.default.object, _propTypes2.default.func, _propTypes2.default.string, _propTypes2.default.number, _propTypes2.default.bool]),
     invalidClassName: _propTypes2.default.string,
-    value: _propTypes2.default.oneOfType([_propTypes2.default.object, _propTypes2.default.func, _propTypes2.default.string, _propTypes2.default.number])
+    value: _propTypes2.default.oneOfType([_propTypes2.default.object, _propTypes2.default.func, _propTypes2.default.string, _propTypes2.default.number, _propTypes2.default.bool])
   };
 
   var Resource = exports.Resource = function (_React$Component3) {
@@ -699,20 +699,21 @@
 
       var _this5 = _possibleConstructorReturn(this, (Resource.__proto__ || Object.getPrototypeOf(Resource)).call(this));
 
-      _underscore2.default.bindAll(_this5, 'afterUpdate', 'assignChanges', 'queueReflectionChange', 'shiftReflectionQueue', 'queueChange', 'handleSubmit', 'updateRoot');
+      _underscore2.default.bindAll(_this5, "afterUpdate", "assignChanges", "queueReflectionChange", "shiftReflectionQueue", "queueChange", "handleSubmit", "updateRoot");
 
       var root = context.root;
-      var reflection = props.reflection,
+      var parent = props.parent,
+          reflection = props.reflection,
           subject = props.subject;
 
 
       var state = { resource: subject };
 
       if (reflection) {
-        var reflectionInstance = root.klass().reflectOnAssociation(reflection);
-        if (_underscore2.default.isUndefined(reflectionInstance)) throw 'Reflection ' + reflection + ' not found.';
+        var reflectionInstance = (root || parent).klass().reflectOnAssociation(reflection);
+        if (_underscore2.default.isUndefined(reflectionInstance)) throw "Reflection " + reflection + " not found.";
         var inverseReflection = reflectionInstance.inverseOf();
-        if (_underscore2.default.isUndefined(inverseReflection)) throw 'Reflection ' + reflection + ' must have inverse.';
+        if (_underscore2.default.isUndefined(inverseReflection)) throw "Reflection " + reflection + " must have inverse.";
 
         state = _extends({}, state, {
           inverseReflection: inverseReflection,
@@ -863,7 +864,9 @@
     }, {
       key: 'getChildContext',
       value: function getChildContext() {
-        var afterUpdate = this.props.afterUpdate;
+        var _props9 = this.props,
+            afterUpdate = _props9.afterUpdate,
+            parent = _props9.parent;
         var root = this.context.root;
         var _state4 = this.state,
             resource = _state4.resource,
@@ -878,7 +881,7 @@
           queuedReflectionChanges: queuedReflectionChanges,
           queueReflectionChange: this.queueReflectionChange,
           shiftReflectionQueue: this.shiftReflectionQueue,
-          root: root || resource,
+          root: parent || root || resource,
           resource: resource,
           updateRoot: this.updateRoot,
           updatingRoot: updating
@@ -891,9 +894,9 @@
       value: function handleSubmit(e, callback) {
         if (e) e.preventDefault();
 
-        var _props9 = this.props,
-            onSubmit = _props9.onSubmit,
-            onInvalidSubmit = _props9.onInvalidSubmit;
+        var _props10 = this.props,
+            onSubmit = _props10.onSubmit,
+            onInvalidSubmit = _props10.onInvalidSubmit;
         var resource = this.state.resource;
 
 
@@ -937,13 +940,13 @@
         var _this7 = this;
 
         var isNestedResource = this.context.isNestedResource;
-        var _props10 = this.props,
-            afterError = _props10.afterError,
-            children = _props10.children,
-            className = _props10.className,
-            component = _props10.component,
-            componentProps = _props10.componentProps,
-            componentRef = _props10.componentRef;
+        var _props11 = this.props,
+            afterError = _props11.afterError,
+            children = _props11.children,
+            className = _props11.className,
+            component = _props11.component,
+            componentProps = _props11.componentProps,
+            componentRef = _props11.componentRef;
         var resource = this.state.resource;
 
 
@@ -955,7 +958,8 @@
             onSubmit: this.handleSubmit,
             subject: resource,
             ref: function ref(c) {
-              _this7.componentRef = c;componentRef(c);
+              _this7.componentRef = c;
+              componentRef(c);
             }
           }));
         } else {
@@ -1004,6 +1008,7 @@
     componentProps: _propTypes2.default.object,
     onInvalidSubmit: _propTypes2.default.func,
     onSubmit: _propTypes2.default.func,
+    parent: _propTypes2.default.object,
     reflection: _propTypes2.default.string,
     subject: _propTypes2.default.object.isRequired
   };

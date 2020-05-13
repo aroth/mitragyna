@@ -1,26 +1,29 @@
 {
-  "name": "mitragyna",
+  "name": "@getoccasion/mitragyna",
   "version": "0.0.3",
-  "description": "A library for managing ActiveResources as React components",
+  "description": "A library for managing ActiveResource.js as React components",
   "main": "build/mitragyna.js",
   "scripts": {
     "test": "grunt spec",
-    "develop": "grunt"
+    "develop": "grunt",
+    "build": "grunt build",
+    "version": "npm version",
+    "publish": "npm publish --access public"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nicklandgrebe/mitragyna.git"
+    "url": "git+https://github.com/getoccasion/mitragyna.git"
   },
   "keywords": [
     "react",
     "active-resource"
   ],
-  "author": "Nick Landgrebe",
+  "author": "Nick Landgrebe, Pelle ten Cate & Kieran Klaassen",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/nicklandgrebe/mitragyna/issues"
+    "url": "https://github.com/getoccasion/mitragyna/issues"
   },
-  "homepage": "https://github.com/nicklandgrebe/mitragyna#readme",
+  "homepage": "https://github.com/getoccasion/mitragyna#readme",
   "devDependencies": {
     "babel-core": "^6.26.0",
     "babel-plugin-transform-class-properties": "^6.24.1",
@@ -39,6 +42,7 @@
     "load-grunt-tasks": "^3.5.2"
   },
   "dependencies": {
+    "active-resource": "GetOccasion/activeresource.js#track_local_changes",
     "classnames": "^2.2.5",
     "prop-types": "^15.6.0",
     "react": "^16.2.0",
