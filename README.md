@@ -1,6 +1,18 @@
 ActiveResource.js binding framework for React components
 
-### Getting Started
+## Installation
+
+```javascript
+yarn add @getoccasion/mitragyna
+```
+
+You can also use the CDN address https://unpkg.com/@getoccasion/mitragyna to add it to your AMD loader or into your page:
+
+```html
+<script type="text/javascript" src="https://unpkg.com/@getoccasion/mitragyna"></script>
+```
+
+## Getting Started
 
 1. Set a resource, and attach a child component to render with that subject
 
