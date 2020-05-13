@@ -6,9 +6,7 @@
   "scripts": {
     "test": "grunt spec",
     "develop": "grunt",
-    "build": "grunt build",
-    "version": "npm version",
-    "publish": "npm publish --access public"
+    "build": "grunt build"
   },
   "repository": {
     "type": "git",
