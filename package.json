@@ -1,6 +1,6 @@
 {
   "name": "@getoccasion/mitragyna",
-  "version": "0.0.3",
+  "version": "0.2.0",
   "description": "A library for managing ActiveResource.js as React components",
   "main": "build/mitragyna.js",
   "scripts": {
