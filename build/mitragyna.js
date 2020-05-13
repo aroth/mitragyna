@@ -710,7 +710,7 @@
       var state = { resource: subject };
 
       if (reflection) {
-        var reflectionInstance = (root || parent).klass().reflectOnAssociation(reflection);
+        var reflectionInstance = (parent || root).klass().reflectOnAssociation(reflection);
         if (_underscore2.default.isUndefined(reflectionInstance)) throw "Reflection " + reflection + " not found.";
         var inverseReflection = reflectionInstance.inverseOf();
         if (_underscore2.default.isUndefined(inverseReflection)) throw "Reflection " + reflection + " must have inverse.";

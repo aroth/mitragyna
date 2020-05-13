@@ -589,13 +589,13 @@ export class Resource extends React.Component {
       "updateRoot"
     );
 
-    const root = context.root;
+    const { root } = context;
     const { parent, reflection, subject } = props;
 
     let state = { resource: subject };
 
     if (reflection) {
-      var reflectionInstance = (root || parent).klass().reflectOnAssociation(reflection);
+      var reflectionInstance = (parent || root).klass().reflectOnAssociation(reflection);
       if (_.isUndefined(reflectionInstance)) throw "Reflection " + reflection + " not found.";
       var inverseReflection = reflectionInstance.inverseOf();
       if (_.isUndefined(inverseReflection)) throw "Reflection " + reflection + " must have inverse.";
