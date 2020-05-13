@@ -5,9 +5,7 @@ ActiveResource.js binding framework for React components
 1. Set a resource, and attach a child component to render with that subject
 
 ```jsx
-<Resource component={Customer} reflection="customer" subject={customer}>
-  Fields go here
-</Resource>
+<Resource component={Customer} reflection="customer" subject={customer} />
 ```
 
 2. Have a field in the child component that responds to the subject from the parent Resource
@@ -27,9 +25,7 @@ ActiveResource.js binding framework for React components
 3. You can nest Resources with setting a reflection
 
 ```jsx
-<Resource component={Customer} reflection="customer" subject={customer}>
-  Fields go here
-</Resource>
+<Resource component={Customer} reflection="customer" subject={customer} />
 ```
 
 4. Bind some callback logic to the (root) resource
@@ -43,9 +39,7 @@ ActiveResource.js binding framework for React components
 ### If using nested resources
 
 ```jsx
-<Resource component={Customer} reflection="customer" subject={subject.customer()} parent={subject}>
-  Fields go here
-</Resource>
+<Resource component={Customer} reflection="customer" subject={subject.customer()} parent={subject} />
 ```
 
 ### Binding and updating values from Fields
