@@ -51,8 +51,38 @@ You can also use the CDN address https://unpkg.com/@getoccasion/mitragyna to add
 ### If using nested resources
 
 ```jsx
-<Resource component={Customer} reflection="customer" subject={subject.customer()} parent={subject} />
+function  useBoomTown() {
+  return [streetRef, street, setStreet]
+}
+
+// App.jsx
+fuction App() {
+  const [streetRef, street, setStreet] = useBoomTown()
+
+  return(
+    <Resource subject={myOrder} afterUpdate={saveMyOrder}>
+      <Resource component={Customer} subject={subject.customer()}>
+        <Resource component={Address} subject={subject.address()}>
+          <input type='text' name="street" ref={streetRef}>
+          <input type='text' name="town" ref={townRef}>
+          <input type='text' name="hood" ref={hoodRef}>
+          <input type='text' name="region" ref={regionRef}>
+        </Resource>
+        <Resource compo subject={subject.address()} />
+
+
+      </Resource>
+
+      <Resource component={Attendees} subject={subject.attendees()} />
+
+      </Resource>
+    </Resource>
+  )
+}
 ```
+
+
+
 
 ### Binding and updating values from Fields
 

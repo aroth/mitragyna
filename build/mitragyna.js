@@ -699,7 +699,7 @@
 
       var _this5 = _possibleConstructorReturn(this, (Resource.__proto__ || Object.getPrototypeOf(Resource)).call(this));
 
-      _underscore2.default.bindAll(_this5, "afterUpdate", "assignChanges", "queueReflectionChange", "shiftReflectionQueue", "queueChange", "handleSubmit", "updateRoot");
+      _underscore2.default.bindAll(_this5, 'afterUpdate', 'assignChanges', 'queueReflectionChange', 'shiftReflectionQueue', 'queueChange', 'handleSubmit', 'updateRoot');
 
       var root = context.root;
       var parent = props.parent,
@@ -711,9 +711,9 @@
 
       if (reflection) {
         var reflectionInstance = (parent || root).klass().reflectOnAssociation(reflection);
-        if (_underscore2.default.isUndefined(reflectionInstance)) throw "Reflection " + reflection + " not found.";
+        if (_underscore2.default.isUndefined(reflectionInstance)) throw 'Reflection ' + reflection + ' not found.';
         var inverseReflection = reflectionInstance.inverseOf();
-        if (_underscore2.default.isUndefined(inverseReflection)) throw "Reflection " + reflection + " must have inverse.";
+        if (_underscore2.default.isUndefined(inverseReflection)) throw 'Reflection ' + reflection + ' must have inverse.';
 
         state = _extends({}, state, {
           inverseReflection: inverseReflection,
@@ -773,6 +773,8 @@
             resource = _state.resource;
 
 
+        console.log('afterUpdate', this.props.subject.klass().name);
+
         if (inverseReflection) {
           var oldTarget = resource.association(inverseReflection.name).target;
           var newTarget = newResource.association(inverseReflection.name).target;
@@ -798,6 +800,8 @@
             queuedChanges = _state2.queuedChanges,
             resource = _state2.resource;
 
+
+        console.log('assignChanges', this.props.subject.klass().name);
 
         if (_underscore2.default.keys(queuedChanges).length == 0) return;
 
@@ -867,7 +871,9 @@
         var _props9 = this.props,
             afterUpdate = _props9.afterUpdate,
             parent = _props9.parent;
-        var root = this.context.root;
+        var _context3 = this.context,
+            root = _context3.root,
+            afterUpdateRoot = _context3.afterUpdateRoot;
         var _state4 = this.state,
             resource = _state4.resource,
             queuedReflectionChanges = _state4.queuedReflectionChanges,
@@ -881,7 +887,7 @@
           queuedReflectionChanges: queuedReflectionChanges,
           queueReflectionChange: this.queueReflectionChange,
           shiftReflectionQueue: this.shiftReflectionQueue,
-          root: parent || root || resource,
+          root: root || resource,
           resource: resource,
           updateRoot: this.updateRoot,
           updatingRoot: updating
@@ -946,7 +952,8 @@
             className = _props11.className,
             component = _props11.component,
             componentProps = _props11.componentProps,
-            componentRef = _props11.componentRef;
+            componentRef = _props11.componentRef,
+            renderFormElement = _props11.renderFormElement;
         var resource = this.state.resource;
 
 
@@ -966,16 +973,16 @@
           body = children;
         }
 
-        if (isNestedResource) {
+        if (!isNestedResource && renderFormElement) {
           return _react2.default.createElement(
-            'section',
-            { className: className },
+            'form',
+            { className: className, onSubmit: this.handleSubmit },
             body
           );
         } else {
           return _react2.default.createElement(
-            'form',
-            { className: className, onSubmit: this.handleSubmit },
+            'section',
+            { className: className },
             body
           );
         }
@@ -983,6 +990,7 @@
     }, {
       key: 'updateRoot',
       value: function updateRoot(newRoot) {
+        console.log('updateRoot', this.props.subject.klass().name);
         var afterUpdate = this.props.afterUpdate;
         var resource = this.state.resource;
 
@@ -990,6 +998,7 @@
         this.setState({ resource: newRoot });
 
         if (afterUpdate) {
+          console.log('  -> afterUpdate is set');
           afterUpdate(newRoot, resource);
           this.setState({ updating: true });
         }
@@ -1006,6 +1015,7 @@
     className: _propTypes2.default.string,
     component: _propTypes2.default.func,
     componentProps: _propTypes2.default.object,
+    renderFormElement: _propTypes2.default.bool,
     onInvalidSubmit: _propTypes2.default.func,
     onSubmit: _propTypes2.default.func,
     parent: _propTypes2.default.object,
@@ -1036,6 +1046,7 @@
   };
   Resource.defaultProps = {
     componentProps: {},
-    componentRef: _underscore2.default.noop
+    componentRef: _underscore2.default.noop,
+    renderFormelement: true
   };
 });

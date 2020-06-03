@@ -539,6 +539,7 @@ export class Resource extends React.Component {
     className: PropTypes.string,
     component: PropTypes.func,
     componentProps: PropTypes.object,
+    renderFormElement: PropTypes.bool,
     onInvalidSubmit: PropTypes.func,
     onSubmit: PropTypes.func,
     parent: PropTypes.object,
@@ -573,6 +574,7 @@ export class Resource extends React.Component {
   static defaultProps = {
     componentProps: {},
     componentRef: _.noop,
+    renderFormelement: true,
   };
 
   constructor(props, context) {
@@ -580,13 +582,13 @@ export class Resource extends React.Component {
 
     _.bindAll(
       this,
-      "afterUpdate",
-      "assignChanges",
-      "queueReflectionChange",
-      "shiftReflectionQueue",
-      "queueChange",
-      "handleSubmit",
-      "updateRoot"
+      'afterUpdate',
+      'assignChanges',
+      'queueReflectionChange',
+      'shiftReflectionQueue',
+      'queueChange',
+      'handleSubmit',
+      'updateRoot'
     );
 
     const { root } = context;
@@ -596,9 +598,9 @@ export class Resource extends React.Component {
 
     if (reflection) {
       var reflectionInstance = (parent || root).klass().reflectOnAssociation(reflection);
-      if (_.isUndefined(reflectionInstance)) throw "Reflection " + reflection + " not found.";
+      if (_.isUndefined(reflectionInstance)) throw 'Reflection ' + reflection + ' not found.';
       var inverseReflection = reflectionInstance.inverseOf();
-      if (_.isUndefined(inverseReflection)) throw "Reflection " + reflection + " must have inverse.";
+      if (_.isUndefined(inverseReflection)) throw 'Reflection ' + reflection + ' must have inverse.';
 
       state = {
         ...state,
@@ -644,6 +646,8 @@ export class Resource extends React.Component {
     const { updateRoot } = this.context;
     const { inverseReflection, resource } = this.state;
 
+    console.log('afterUpdate', this.props.subject.klass().name);
+
     if (inverseReflection) {
       var oldTarget = resource.association(inverseReflection.name).target;
       var newTarget = newResource.association(inverseReflection.name).target;
@@ -665,6 +669,8 @@ export class Resource extends React.Component {
 
   assignChanges() {
     const { queuedChanges, resource } = this.state;
+
+    console.log('assignChanges', this.props.subject.klass().name);
 
     if (_.keys(queuedChanges).length == 0) return;
 
@@ -722,7 +728,7 @@ export class Resource extends React.Component {
 
   getChildContext() {
     const { afterUpdate, parent } = this.props;
-    const { root } = this.context;
+    const { root, afterUpdateRoot } = this.context;
     const { resource, queuedReflectionChanges, updating } = this.state;
 
     let childContext = {
@@ -732,7 +738,7 @@ export class Resource extends React.Component {
       queuedReflectionChanges: queuedReflectionChanges,
       queueReflectionChange: this.queueReflectionChange,
       shiftReflectionQueue: this.shiftReflectionQueue,
-      root: parent || root || resource,
+      root: root || resource,
       resource,
       updateRoot: this.updateRoot,
       updatingRoot: updating,
@@ -786,7 +792,7 @@ export class Resource extends React.Component {
 
   render() {
     const { isNestedResource } = this.context;
-    const { afterError, children, className, component, componentProps, componentRef } = this.props;
+    const { afterError, children, className, component, componentProps, componentRef, renderFormElement } = this.props;
     const { resource } = this.state;
 
     let body;
@@ -806,24 +812,26 @@ export class Resource extends React.Component {
       body = children;
     }
 
-    if (isNestedResource) {
-      return <section className={className}>{body}</section>;
-    } else {
+    if (!isNestedResource && renderFormElement) {
       return (
         <form className={className} onSubmit={this.handleSubmit}>
           {body}
         </form>
       );
+    } else {
+      return <section className={className}>{body}</section>;
     }
   }
 
   updateRoot(newRoot) {
+    console.log('updateRoot', this.props.subject.klass().name);
     const { afterUpdate } = this.props;
     const { resource } = this.state;
 
     this.setState({ resource: newRoot });
 
     if (afterUpdate) {
+      console.log('  -> afterUpdate is set');
       afterUpdate(newRoot, resource);
       this.setState({ updating: true });
     }
