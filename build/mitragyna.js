@@ -464,7 +464,7 @@
           default:
             var val = resource[name];
 
-            return val ? val : '';
+            return val != null ? val : '';
         }
       }
     }, {

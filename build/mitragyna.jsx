@@ -354,7 +354,7 @@ export class Field extends React.Component {
       default:
         var val = resource[name];
 
-        return val ? val : '';
+        return val != null ? val : '';
     }
   }
 
