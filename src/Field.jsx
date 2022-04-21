@@ -181,7 +181,7 @@ export class Field extends React.Component {
         omittedProps = _.omit(Field.propTypes, "type");
     }
 
-    return _.omit(this.props, _.keys(omittedProps));
+    return this.props; //  _.omit(this.props, _.keys(omittedProps));
   }
 
   // TODO: Add support for non-resource options on select and radioGroup
