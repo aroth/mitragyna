@@ -1,5 +1,5 @@
-import classNames from 'classnames';
-import shallowEqual from 'shallowequal';
+import classNames from "classnames";
+import shallowEqual from "shallowequal";
 
 export class Field extends React.Component {
   static contextTypes = {
@@ -20,10 +20,7 @@ export class Field extends React.Component {
     includeBlank: PropTypes.bool,
     name: PropTypes.string.isRequired,
     options: PropTypes.instanceOf(ActiveResource.Collection),
-    optionsLabel: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.func,
-    ]),
+    optionsLabel: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
     type: PropTypes.string.isRequired,
     uncheckedValue: PropTypes.oneOfType([
       PropTypes.object,
@@ -39,42 +36,47 @@ export class Field extends React.Component {
       PropTypes.string,
       PropTypes.number,
       PropTypes.bool,
-    ])
+    ]),
   };
 
   constructor() {
     super();
 
-    _.bindAll(this,
-      'afterChange',
-      'changeRadio',
-      'classNames',
-      'commonInputProps',
-      'customInputProps',
-      'getValue',
-      'handleChange',
-      'renderCheckboxComponent',
-      'renderInputComponent',
-      'renderRadioComponent',
-      'renderSelectComponent',
-      'renderTextareaComponent',
-      'setValue',
-      'valueFor',
+    _.bindAll(
+      this,
+      "afterChange",
+      "changeRadio",
+      "classNames",
+      "commonInputProps",
+      "customInputProps",
+      "getValue",
+      "handleChange",
+      "renderCheckboxComponent",
+      "renderInputComponent",
+      "renderRadioComponent",
+      "renderSelectComponent",
+      "renderTextareaComponent",
+      "setValue",
+      "valueFor"
     );
 
     this.state = {};
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
-    return !(shallowEqual(this.props, nextProps) && shallowEqual(this.state, nextState) && shallowEqual(this.context, nextContext));
+    return !(
+      shallowEqual(this.props, nextProps) &&
+      shallowEqual(this.state, nextState) &&
+      shallowEqual(this.context, nextContext)
+    );
   }
 
   getChildContext() {
     const { type } = this.props;
     const { value } = this.state;
 
-    switch(type) {
-      case 'radioGroup':
+    switch (type) {
+      case "radioGroup":
         return {
           changeRadio: this.changeRadio,
           radioValue: value,
@@ -93,30 +95,33 @@ export class Field extends React.Component {
     // Set initial value to that of the resources
     this.setState({
       resource,
-      value: this.valueFor(resource, this.props)
+      value: this.valueFor(resource, this.props),
     });
 
-    switch(type) {
-      case 'email':
-      case 'number':
-      case 'text':
-      case 'textarea':
+    switch (type) {
+      case "email":
+      case "number":
+      case "text":
+      case "textarea":
         this.afterChange = _.debounce(this.afterChange, 500);
     }
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { resource: prevResource } = prevState
-    const { resource } = this.context
+    const { resource: prevResource } = prevState;
+    const { resource } = this.context;
 
-    if(prevResource !== resource) {
-      this.setState({ resource })
+    if (prevResource !== resource) {
+      this.setState({ resource });
     }
 
-    if(!(_.isNull(prevResource.id) || _.isUndefined(prevResource.id)) && prevResource.id !== resource.id) {
+    if (
+      !(_.isNull(prevResource.id) || _.isUndefined(prevResource.id)) &&
+      prevResource.id !== resource.id
+    ) {
       this.setState({
-        value: this.valueFor(resource, this.props)
-      })
+        value: this.valueFor(resource, this.props),
+      });
     }
   }
 
@@ -124,12 +129,9 @@ export class Field extends React.Component {
     const { className, invalidClassName, name } = this.props;
     const { resource } = this.context;
 
-    return classNames(
-      className,
-      {
-        [invalidClassName]: !resource.errors().forField(name).empty()
-      }
-    );
+    return classNames(className, {
+      [invalidClassName]: !resource.errors().forField(name).empty(),
+    });
   }
 
   commonInputProps() {
@@ -146,16 +148,16 @@ export class Field extends React.Component {
   }
 
   componentFor(type) {
-    switch(type) {
-      case 'checkbox':
+    switch (type) {
+      case "checkbox":
         return this.renderCheckboxComponent();
-      case 'radio':
+      case "radio":
         return this.renderRadioComponent();
-      case 'radioGroup':
+      case "radioGroup":
         return this.renderRadioGroupComponent();
-      case 'select':
+      case "select":
         return this.renderSelectComponent();
-      case 'textarea':
+      case "textarea":
         return this.renderTextareaComponent();
       default:
         return this.renderInputComponent();
@@ -168,15 +170,15 @@ export class Field extends React.Component {
     const { component, type } = this.props;
 
     var omittedProps;
-    switch(type) {
-      case 'radio':
-        omittedProps = _.omit(Field.propTypes, ['type', 'name']);
+    switch (type) {
+      case "radio":
+        omittedProps = _.omit(Field.propTypes, "type"); // _.omit(Field.propTypes, ['type', 'name']);
         break;
-      case 'select':
-        omittedProps = component ? _.omit(Field.propTypes, 'type') : Field.propTypes;
+      case "select":
+        omittedProps = _.omit(Field.propTypes, "type"); // component ? _.omit(Field.propTypes, 'type') : Field.propTypes;
         break;
       default:
-        omittedProps = _.omit(Field.propTypes, 'type');
+        omittedProps = _.omit(Field.propTypes, "type");
     }
 
     return _.omit(this.props, _.keys(omittedProps));
@@ -186,24 +188,34 @@ export class Field extends React.Component {
   valueFor(resource, props) {
     const { name, type, uncheckedValue, value } = props;
 
-    switch(type) {
-      case 'checkbox':
+    switch (type) {
+      case "checkbox":
         var resourceValue = resource[name];
-        if(resourceValue == value) {
+        if (resourceValue == value) {
           return true;
-        } else if(resourceValue == uncheckedValue || _.isUndefined(resourceValue) || _.isNull(resourceValue)) {
+        } else if (
+          resourceValue == uncheckedValue ||
+          _.isUndefined(resourceValue) ||
+          _.isNull(resourceValue)
+        ) {
           return false;
         } else {
-          throw 'Field ' + name + ' with value ' + resource[name] + ' does not match value or uncheckedValue for checkbox'
+          throw (
+            "Field " +
+            name +
+            " with value " +
+            resource[name] +
+            " does not match value or uncheckedValue for checkbox"
+          );
         }
-      case 'radioGroup':
-      case 'select':
+      case "radioGroup":
+      case "select":
         var val = resource[name]();
-        return val ? val.id : '';
+        return val ? val.id : "";
       default:
         var val = resource[name];
 
-        return val != null ? val : '';
+        return val != null ? val : "";
     }
   }
 
@@ -216,7 +228,7 @@ export class Field extends React.Component {
   renderCheckboxComponent() {
     const { component } = this.props;
 
-    let finalComponent = component || 'input';
+    let finalComponent = component || "input";
     return React.createElement(finalComponent, {
       ...this.commonInputProps(),
       ...this.customInputProps(),
@@ -227,7 +239,7 @@ export class Field extends React.Component {
   renderInputComponent() {
     const { component } = this.props;
 
-    let finalComponent = component || 'input';
+    let finalComponent = component || "input";
     return React.createElement(finalComponent, {
       ...this.commonInputProps(),
       ...this.customInputProps(),
@@ -243,20 +255,18 @@ export class Field extends React.Component {
       throw 'Input type="radio" must have prop "value"';
     }
 
-    let finalComponent = component || 'input';
+    let finalComponent = component || "input";
     return React.createElement(finalComponent, {
       ...this.commonInputProps(),
       ...this.customInputProps(),
       checked: value.id == radioValue,
       value: value.id,
-      name: value.questionId
+      name: value.questionId,
     });
   }
 
   renderRadioGroupComponent() {
-    return <div>
-      { this.props.children }
-    </div>;
+    return <div>{this.props.children}</div>;
   }
 
   renderSelectComponent() {
@@ -267,33 +277,33 @@ export class Field extends React.Component {
       throw 'Input type="select" must have options';
     } else {
       selectOptions = options.map((o) => {
-        return <option key={o.id} value={o.id}>
-          {
-            _.isString(optionsLabel) ? (
-              o[optionsLabel]
-            ) : (
-              optionsLabel(o)
-            )
-          }
-        </option>;
+        return (
+          <option key={o.id} value={o.id}>
+            {_.isString(optionsLabel) ? o[optionsLabel] : optionsLabel(o)}
+          </option>
+        );
       });
       if (includeBlank) {
-        selectOptions.unshift(<option key={-1} value=''></option>);
+        selectOptions.unshift(<option key={-1} value=""></option>);
       }
     }
 
-    let finalComponent = component || 'select';
-    return React.createElement(finalComponent, {
-      ...this.commonInputProps(),
-      ...this.customInputProps(),
-      value: this.state.value,
-    }, selectOptions.toArray());
+    let finalComponent = component || "select";
+    return React.createElement(
+      finalComponent,
+      {
+        ...this.commonInputProps(),
+        ...this.customInputProps(),
+        value: this.state.value,
+      },
+      selectOptions.toArray()
+    );
   }
 
   renderTextareaComponent() {
     const { component } = this.props;
 
-    let finalComponent = component || 'textarea';
+    let finalComponent = component || "textarea";
     return React.createElement(finalComponent, {
       ...this.commonInputProps(),
       ...this.customInputProps(),
@@ -309,21 +319,21 @@ export class Field extends React.Component {
 
     let value;
 
-    switch(type) {
-      case 'checkbox':
+    switch (type) {
+      case "checkbox":
         value = e.target.checked;
         break;
-      case 'number':
-        if(e.target.value > max) {
+      case "number":
+        if (e.target.value > max) {
           value = max;
-        } else if(e.target.value < min) {
+        } else if (e.target.value < min) {
           value = min;
         } else {
           value = e.target.value || min;
         }
 
         break;
-      case 'radio':
+      case "radio":
         changeRadio(e.target.value);
         break;
       default:
@@ -339,18 +349,18 @@ export class Field extends React.Component {
     const { queueChange } = this.context;
 
     let mappedValue;
-    switch(type) {
-      case 'checkbox':
-        if(stateValue) {
+    switch (type) {
+      case "checkbox":
+        if (stateValue) {
           mappedValue = value;
         } else {
           mappedValue = uncheckedValue;
         }
         break;
-      case 'radio':
+      case "radio":
         mappedValue = value;
         break;
-      case 'select':
+      case "select":
         mappedValue = options.detect((o) => o.id === stateValue);
         break;
       default:
@@ -368,8 +378,8 @@ export class Field extends React.Component {
     const { type } = this.props;
 
     let mappedValue = { persist: _.noop };
-    switch(type) {
-      case 'checkbox':
+    switch (type) {
+      case "checkbox":
         mappedValue = { ...mappedValue, target: { checked: value } };
         break;
       default:
